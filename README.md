@@ -4,15 +4,25 @@ Read a script at a controlled pace with adjustable typography, mirroring, focus 
 
 ## Features
 
-- Editable scripts with session recovery and download
-- Adjustable speed, font size, line height, width, and alignment
-- Countdown, play, pause, restart, and progress controls
-- Mirroring, reading guide, focus mode, and fullscreen
-- Keyboard-operated presentation controls
+- Editable scripts with text-file import, session recovery, clearing, and download
+- Slow, natural, and fast presets plus precise scroll-speed control
+- Adjustable font size, line spacing, text width, and left or centred alignment
+- Optional three- or five-second countdown with play, pause, restart, and progress controls
+- Horizontal mirroring for reflective teleprompter rigs
+- Reading guide, distraction-reduced focus mode, and fullscreen presentation
+- Keyboard controls for playback, speed changes, navigation, restart, and fullscreen
 
 ## Screenshot
 
 ![Online Teleprompter interface](./public/tool-preview.webp)
+
+## How to use
+
+1. Type, paste, or import the script, then download a copy if you want a reusable text file.
+2. Choose a speed preset and adjust font size, line spacing, text width, alignment, and countdown.
+3. Enable mirroring, the reading guide, or focus mode for the presentation setup you need.
+4. Start the countdown, then pause, resume, restart, or manually reposition the script.
+5. Enter fullscreen when ready and use the displayed keyboard controls during delivery.
 
 ## Browser support and limitations
 

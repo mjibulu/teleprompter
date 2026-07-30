@@ -52,9 +52,11 @@ export function App() {
           <summary>How to use this tool</summary>
           <div className="information-content">
             <ol>
-            <li>{"Enter or paste the script and adjust its reading and display settings."}</li>
-            <li>{"Start the countdown, then pause, resume, or restart the scrolling presentation."}</li>
-            <li>{"Use focus, mirror, guide, fullscreen, or keyboard controls as needed."}</li>
+            <li>{"Type, paste, or import the script, then download a copy if you want a reusable text file."}</li>
+            <li>{"Choose a speed preset and adjust font size, line spacing, text width, alignment, and countdown."}</li>
+            <li>{"Enable mirroring, the reading guide, or focus mode for the presentation setup you need."}</li>
+            <li>{"Start the countdown, then pause, resume, restart, or manually reposition the script."}</li>
+            <li>{"Enter fullscreen when ready and use the displayed keyboard controls during delivery."}</li>
             </ol>
           </div>
         </details>
