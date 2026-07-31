@@ -31,18 +31,23 @@ The current stable releases of Chromium, Firefox, and Safari are supported.
 - Fullscreen must be started by a user gesture and may be unavailable inside restricted embedded frames.
 - Keyboard shortcuts work while the page has focus; browsers may reserve some system shortcuts.
 
-## Run locally
+## Clone and run locally
 
 Requirements:
 
-- Node.js 24.x
+- Git
+- Node.js 22.13.x or Node.js 24.x (recommended)
 - Corepack
 
 ```bash
+git clone https://github.com/mjibulu/teleprompter.git
+cd teleprompter
 corepack enable
 pnpm install --frozen-lockfile
 pnpm run dev
 ```
+
+The development server prints the local URL to open in your browser.
 
 ## Verify
 
