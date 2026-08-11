@@ -22,7 +22,7 @@ describe("Online Teleprompter", () => {
     expect(editor).toHaveValue("Recovered script with five useful words.");
 
     await user.selectOptions(
-      screen.getByRole("combobox", { name: "Text alignment" }),
+      screen.getByRole("combobox", { name: "Alignment" }),
       "left",
     );
     await user.click(screen.getByRole("button", { name: /Mirror text/u }));
@@ -38,7 +38,7 @@ describe("Online Teleprompter", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.selectOptions(
-      screen.getByRole("combobox", { name: "Start countdown" }),
+      screen.getByRole("combobox", { name: "Countdown" }),
       "0",
     );
     await user.click(screen.getByRole("button", { name: "Play" }));

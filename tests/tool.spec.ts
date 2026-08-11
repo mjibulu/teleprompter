@@ -15,7 +15,7 @@ test("script setup and teleprompter playback stay local", async ({
     (_, index) => `Reading line ${index + 1} keeps the presentation moving.`,
   ).join("\n");
   await page.getByRole("textbox", { name: "Script text" }).fill(script);
-  await page.getByRole("combobox", { name: "Start countdown" }).selectOption("0");
+  await page.getByRole("combobox", { name: "Countdown" }).selectOption("0");
   await page.getByRole("slider", { name: "Font size" }).fill("72");
   await page.getByRole("button", { name: /Mirror text/u }).click();
 

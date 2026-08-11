@@ -1,17 +1,25 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Expand, FlipHorizontal2, Pause, Play, RotateCcw } from "lucide-react";
+import { useLocale, useTranslations } from "use-intl";
+import { deriveOutputFilename } from "../lib/public-tools/outputFilename";
 import { DownloadButton } from "../components/DownloadButton";
 import { countTeleprompterWords, estimateSpeakingSeconds, formatTeleprompterClock, getTeleprompterProgress, getTeleprompterRemainingSeconds, } from "../lib/public-tools/teleprompter";
 const SESSION_KEY = "teleprompter:script:v1";
-const DEFAULT_SCRIPT = `Good morning and welcome.
-
-Paste or write your script here, then choose a comfortable reading speed and font size.
-
-Press play when you are ready. Keep your eyes near the center guide and use the keyboard controls to stay focused on your delivery.`;
 type PlaybackState = "idle" | "countdown" | "playing" | "paused" | "finished";
 type TextAlign = "left" | "center";
+const SPEED_PRESETS: Array<{
+    key: "slow" | "natural" | "fast";
+    value: number;
+}> = [
+    { key: "slow", value: 25 },
+    { key: "natural", value: 45 },
+    { key: "fast", value: 75 },
+];
 export function TeleprompterTool() {
-    const [script, setScript] = useState(DEFAULT_SCRIPT);
+    const locale = useLocale();
+    const t = useTranslations("tools.text.teleprompter.tool");
+    const defaultScript = t("defaultScript");
+    const [script, setScript] = useState(defaultScript);
     const [speed, setSpeed] = useState(45);
     const [fontSize, setFontSize] = useState(54);
     const [lineHeight, setLineHeight] = useState(1.5);
@@ -26,6 +34,7 @@ export function TeleprompterTool() {
     const [progress, setProgress] = useState(0);
     const [remainingSeconds, setRemainingSeconds] = useState(0);
     const [fileError, setFileError] = useState("");
+    const [sourceFilename, setSourceFilename] = useState("");
     const [sessionRestored, setSessionRestored] = useState(false);
     const stageRef = useRef<HTMLDivElement>(null);
     const previewRef = useRef<HTMLDivElement>(null);
@@ -177,13 +186,13 @@ export function TeleprompterTool() {
                 event.preventDefault();
                 startOrToggle();
             }
-            else if (event.key.toLocaleLowerCase() === "r") {
+            else if (event.key.toLowerCase() === "r") {
                 reset();
             }
-            else if (event.key.toLocaleLowerCase() === "m") {
+            else if (event.key.toLowerCase() === "m") {
                 setMirrored((current) => !current);
             }
-            else if (event.key.toLocaleLowerCase() === "f") {
+            else if (event.key.toLowerCase() === "f") {
                 void toggleFullscreen();
             }
             else if (event.key === "ArrowUp") {
@@ -207,122 +216,171 @@ export function TeleprompterTool() {
         if (!file)
             return;
         if (file.size > 200000) {
-            setFileError("Choose a plain-text file smaller than 200 KB.");
+            setFileError(t("errors.tooLarge"));
             return;
         }
         if (!file.type.startsWith("text/") && !/\.(txt|md)$/iu.test(file.name)) {
-            setFileError("Choose a .txt or .md plain-text script.");
+            setFileError(t("errors.wrongType"));
             return;
         }
         try {
             updateScript(await file.text());
+            setSourceFilename(file.name);
         }
         catch {
-            setFileError("The selected script could not be read.");
+            setFileError(t("errors.readFailed"));
         }
     };
     const playbackLabel = playback === "playing"
-        ? "Pause"
+        ? t("playback.pause")
         : playback === "paused"
-            ? "Resume"
+            ? t("playback.resume")
             : playback === "countdown"
-                ? "Cancel countdown"
+                ? t("playback.cancelCountdown")
                 : playback === "finished"
-                    ? "Play again"
-                    : startDelay ? `Start in ${startDelay} seconds` : "Play";
+                    ? t("playback.playAgain")
+                    : startDelay
+                        ? t("playback.startIn", { seconds: startDelay })
+                        : t("playback.play");
     return (<div className="teleprompter">
       <section className="teleprompter-editor" aria-labelledby="teleprompter-editor-title">
         <div className="teleprompter-section-heading">
           <div>
-            <h2 id="teleprompter-editor-title">Script</h2>
-            <p>{words.toLocaleString()} words · about {formatTeleprompterClock(speakingEstimate)} at 150 WPM</p>
+            <h2 id="teleprompter-editor-title">{t("editor.heading")}</h2>
+            <p>
+              {t("editor.wordsSummary", {
+            words: words.toLocaleString(locale),
+            duration: formatTeleprompterClock(speakingEstimate),
+        })}
+            </p>
           </div>
-          <DownloadButton content={script} filename="teleprompter-script.txt" toolSlug="teleprompter">
-            Download .txt
+          <DownloadButton content={script} filename={deriveOutputFilename(sourceFilename || "teleprompter.txt", "teleprompter", "txt", "script")} toolSlug="teleprompter">
+            {t("downloadScript")}
           </DownloadButton>
         </div>
-        <label className="sr-only" htmlFor="teleprompter-script">Script text</label>
-        <textarea id="teleprompter-script" value={script} onChange={(event) => updateScript(event.target.value)} rows={13} placeholder="Paste or write your script…"/>
+        <label className="sr-only" htmlFor="teleprompter-script">
+          {t("scriptTextLabel")}
+        </label>
+        <textarea id="teleprompter-script" value={script} onChange={(event) => updateScript(event.target.value)} rows={13} placeholder={t("scriptPlaceholder")}/>
         <div className="teleprompter-editor-actions">
           <label className="secondary-button file-button">
-            Import .txt or .md
-            <input type="file" accept=".txt,.md,text/plain,text/markdown" onChange={(event) => { void importScript(event.target.files?.[0]); event.currentTarget.value = ""; }}/>
+            {t("importScript")}
+            <input type="file" accept=".txt,.md,text/plain,text/markdown" onChange={(event) => {
+            void importScript(event.target.files?.[0]);
+            event.currentTarget.value = "";
+        }}/>
           </label>
-          <button type="button" className="secondary-button" onClick={() => updateScript("")} disabled={!script}>Clear script</button>
+          <button type="button" className="secondary-button" onClick={() => updateScript("")} disabled={!script}>
+            {t("clearScript")}
+          </button>
         </div>
-        {fileError ? <p className="validation-message error" role="alert">{fileError}</p> : null}
+        {fileError ? (<p className="validation-message error" role="alert">
+            {fileError}
+          </p>) : null}
       </section>
 
       <section className="teleprompter-settings" aria-labelledby="teleprompter-settings-title">
         <div className="teleprompter-section-heading">
           <div>
-            <h2 id="teleprompter-settings-title">Reading setup</h2>
-            <p>Fine-tune the stage before going fullscreen.</p>
+            <h2 id="teleprompter-settings-title">{t("settings.heading")}</h2>
+            <p>{t("settings.description")}</p>
           </div>
         </div>
-        <div className="tool-preset-bar" aria-label="Scroll speed presets">
-          <span>Speed</span>
-          {[["Slow", 25], ["Natural", 45], ["Fast", 75]].map(([label, value]) => (<button key={label} type="button" className={speed === value ? "secondary-button active" : "secondary-button"} aria-pressed={speed === value} onClick={() => setSpeed(value as number)}>
-              {label}
+        <div className="tool-preset-bar" aria-label={t("speedAriaLabel")}>
+          <span>{t("speedLabel")}</span>
+          {SPEED_PRESETS.map(({ key, value }) => (<button key={key} type="button" className={speed === value ? "secondary-button active" : "secondary-button"} aria-pressed={speed === value} onClick={() => setSpeed(value)}>
+              {t(`speedPresets.${key}`)}
             </button>))}
         </div>
-        <label htmlFor="teleprompter-speed"><span>Scroll speed</span><strong>{speed} px/s</strong></label>
+        <label htmlFor="teleprompter-speed">
+          <span>{t("scrollSpeedLabel")}</span>
+          <strong>{t("scrollSpeedValue", { value: speed })}</strong>
+        </label>
         <input id="teleprompter-speed" type="range" min="5" max="180" step="5" value={speed} onChange={(event) => setSpeed(Number(event.target.value))}/>
-        <label htmlFor="teleprompter-font"><span>Font size</span><strong>{fontSize}px</strong></label>
+        <label htmlFor="teleprompter-font">
+          <span>{t("fontSizeLabel")}</span>
+          <strong>{t("fontSizeValue", { value: fontSize })}</strong>
+        </label>
         <input id="teleprompter-font" type="range" min="28" max="110" step="2" value={fontSize} onChange={(event) => setFontSize(Number(event.target.value))}/>
-        <label htmlFor="teleprompter-spacing"><span>Line spacing</span><strong>{lineHeight.toFixed(1)}</strong></label>
+        <label htmlFor="teleprompter-spacing">
+          <span>{t("lineSpacingLabel")}</span>
+          <strong>
+            {lineHeight.toLocaleString(locale, {
+            minimumFractionDigits: 1,
+            maximumFractionDigits: 1,
+        })}
+          </strong>
+        </label>
         <input id="teleprompter-spacing" type="range" min="1.1" max="2.2" step="0.1" value={lineHeight} onChange={(event) => setLineHeight(Number(event.target.value))}/>
-        <label htmlFor="teleprompter-width"><span>Text width</span><strong>{columnWidth}%</strong></label>
+        <label htmlFor="teleprompter-width">
+          <span>{t("textWidthLabel")}</span>
+          <strong>{t("textWidthValue", { value: columnWidth })}</strong>
+        </label>
         <input id="teleprompter-width" type="range" min="45" max="96" step="1" value={columnWidth} onChange={(event) => setColumnWidth(Number(event.target.value))}/>
         <div className="teleprompter-choice-grid">
-          <label htmlFor="teleprompter-align">Text alignment</label>
+          <label htmlFor="teleprompter-align">{t("textAlignLabel")}</label>
           <select id="teleprompter-align" value={textAlign} onChange={(event) => setTextAlign(event.target.value as TextAlign)}>
-            <option value="center">Centred</option>
-            <option value="left">Left aligned</option>
+            <option value="center">{t("textAlignCentred")}</option>
+            <option value="left">{t("textAlignLeft")}</option>
           </select>
-          <label htmlFor="teleprompter-delay">Start countdown</label>
+          <label htmlFor="teleprompter-delay">{t("startCountdownLabel")}</label>
           <select id="teleprompter-delay" value={startDelay} onChange={(event) => setStartDelay(Number(event.target.value))}>
-            <option value="0">None</option><option value="3">3 seconds</option><option value="5">5 seconds</option>
+            <option value="0">{t("countdownNone")}</option>
+            <option value="3">{t("countdownSeconds", { value: 3 })}</option>
+            <option value="5">{t("countdownSeconds", { value: 5 })}</option>
           </select>
         </div>
         <div className="teleprompter-toggle-grid">
           <button type="button" className={mirrored ? "secondary-button active" : "secondary-button"} aria-pressed={mirrored} onClick={() => setMirrored((current) => !current)}>
-            <FlipHorizontal2 size={17} aria-hidden="true"/> Mirror text
+            <FlipHorizontal2 size={17} aria-hidden="true"/> {t("mirrorText")}
           </button>
           <button type="button" className={guideVisible ? "secondary-button active" : "secondary-button"} aria-pressed={guideVisible} onClick={() => setGuideVisible((current) => !current)}>
-            Reading guide
+            {t("readingGuide")}
           </button>
         </div>
       </section>
 
       <div className="teleprompter-preview" ref={previewRef}>
-        <div className="teleprompter-stage" ref={stageRef} tabIndex={0} aria-label="Teleprompter reading stage" onScroll={() => playback !== "playing" && updateStageProgress()} onWheel={() => playback === "playing" && setPlayback("paused")}>
-          {guideVisible ? <div className="teleprompter-guide" aria-hidden="true"/> : null}
-          {playback === "countdown" ? <div className="teleprompter-countdown" aria-live="assertive">{countdown}</div> : null}
-          <div className={mirrored ? "teleprompter-script mirrored" : "teleprompter-script"} style={{ fontSize: `${fontSize}px`, lineHeight, width: `${columnWidth}%`, textAlign }}>
-            {script || "Enter a script to begin."}
+        <div className="teleprompter-stage" ref={stageRef} tabIndex={0} aria-label={t("stageAriaLabel")} onScroll={() => playback !== "playing" && updateStageProgress()} onWheel={() => playback === "playing" && setPlayback("paused")}>
+          {guideVisible ? (<div className="teleprompter-guide" aria-hidden="true"/>) : null}
+          {playback === "countdown" ? (<div className="teleprompter-countdown" aria-live="assertive">
+              {countdown}
+            </div>) : null}
+          <div className={mirrored ? "teleprompter-script mirrored" : "teleprompter-script"} style={{
+            fontSize: `${fontSize}px`,
+            lineHeight,
+            width: `${columnWidth}%`,
+            textAlign,
+        }}>
+            {script || t("emptyScriptPlaceholder")}
           </div>
         </div>
 
         <div className="teleprompter-preview-status">
-          <div className="teleprompter-progress-track" role="progressbar" aria-label="Script progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
+          <div className="teleprompter-progress-track" role="progressbar" aria-label={t("progressAriaLabel")} aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
             <span style={{ width: `${progress}%` }}/>
           </div>
-          <span>{progress}% · about {formatTeleprompterClock(remainingSeconds)} remaining</span>
+          <span>
+            {t("progressSummary", {
+            percent: progress,
+            duration: formatTeleprompterClock(remainingSeconds),
+        })}
+          </span>
         </div>
 
         <div className="teleprompter-controls">
           <button type="button" className="primary-button" onClick={startOrToggle} disabled={!script.trim()}>
-            {playback === "playing" ? <Pause size={18} aria-hidden="true"/> : <Play size={18} aria-hidden="true"/>}
+            {playback === "playing" ? (<Pause size={18} aria-hidden="true"/>) : (<Play size={18} aria-hidden="true"/>)}
             {playbackLabel}
           </button>
           <button type="button" className="secondary-button" onClick={reset}>
-            <RotateCcw size={17} aria-hidden="true"/> Reset
+            <RotateCcw size={17} aria-hidden="true"/> {t("reset")}
           </button>
           <button type="button" className="secondary-button" onClick={() => void toggleFullscreen()}>
-            <Expand size={17} aria-hidden="true"/> {fullscreen ? "Exit fullscreen" : "Fullscreen"}
+            <Expand size={17} aria-hidden="true"/>{" "}
+            {fullscreen ? t("exitFullscreen") : t("fullscreen")}
           </button>
-          <span>Space play/pause · ↑/↓ speed · R reset · M mirror · F fullscreen</span>
+          <span>{t("shortcutsHint")}</span>
         </div>
       </div>
     </div>);
