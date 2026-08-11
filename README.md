@@ -1,24 +1,37 @@
-# **TITLE**
+# Online Teleprompter
 
-**DESCRIPTION**
+Read a script at a controlled pace with adjustable typography, mirroring, focus mode, fullscreen presentation, and keyboard controls.
 
 [Features](#features) · [Usage](#usage) · [Run locally](#run-locally) · [Contributing](./.github/CONTRIBUTING.md) · [Licence](./LICENSE)
 
 ## Features
 
-**FEATURE_LIST**
+- Editable scripts with text-file import, session recovery, clearing, and download
+- Slow, natural, and fast presets plus precise scroll-speed control
+- Adjustable font size, line spacing, text width, and left or centred alignment
+- Optional three- or five-second countdown with play, pause, restart, and progress controls
+- Horizontal mirroring for reflective teleprompter rigs
+- Reading guide, distraction-reduced focus mode, and fullscreen presentation
+- Keyboard controls for playback, speed changes, navigation, restart, and fullscreen
 
 ## Screenshot
 
+![Online Teleprompter screenshot](./public/tool-preview.webp)
+
 ## Usage
 
-**HOW_TO_LIST**
+1. Type, paste, or import the script, then download a copy if you want a reusable text file.
+2. Choose a speed preset and adjust font size, line spacing, text width, alignment, and countdown.
+3. Enable mirroring, the reading guide, or focus mode for the presentation setup you need.
+4. Start the countdown, then pause, resume, restart, or manually reposition the script.
+5. Enter fullscreen when ready and use the displayed keyboard controls during delivery.
 
 ## Browser support
 
 Works with current versions of Chrome/Chromium, Firefox, and Safari.
 
-**BROWSER_SUPPORT_NOTES**
+- Fullscreen must be started by a user gesture and may be unavailable inside restricted embedded frames.
+- Keyboard shortcuts work while the page has focus; browsers may reserve some system shortcuts.
 
 ## Run locally
 
@@ -53,9 +66,9 @@ The production files are created in `dist/` and can be hosted on GitHub Pages, N
 
 The app runs in your browser and does not include analytics, ads, or telemetry.
 
-**STORAGE_DESCRIPTION**
+This tool may store the following tool-specific keys locally: `teleprompter:script:v1`.
 
-**BROWSER_API_DESCRIPTION**
+This tool uses: Fullscreen API, sessionStorage, Blob downloads. Availability may vary by browser.
 
 ## Contributing
 
