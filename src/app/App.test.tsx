@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, vi } from "vitest";
 import { App } from "./App";
@@ -19,7 +19,9 @@ describe("Online Teleprompter", () => {
     const editor = await screen.findByRole("textbox", {
       name: "Script text",
     });
-    expect(editor).toHaveValue("Recovered script with five useful words.");
+    await waitFor(() => {
+      expect(editor).toHaveValue("Recovered script with five useful words.");
+    });
 
     await user.selectOptions(
       screen.getByRole("combobox", { name: "Alignment" }),
