@@ -1,0 +1,67 @@
+{
+  "tools": {
+    "text": {
+      "teleprompter": {
+        "tool": {
+          "defaultScript": "Paste your script here.",
+          "editor": {
+            "heading": "Script",
+            "wordsSummary": "{words} words · about {duration} at 150 WPM"
+          },
+          "downloadScript": "Download",
+          "scriptTextLabel": "Script text",
+          "scriptPlaceholder": "Paste or write your script…",
+          "importScript": "Import",
+          "clearScript": "Clear",
+          "errors": {
+            "tooLarge": "Choose a plain-text file smaller than 200 KB.",
+            "wrongType": "Choose a .txt or .md plain-text script.",
+            "readFailed": "The selected script could not be read."
+          },
+          "settings": {
+            "heading": "Display",
+            "description": ""
+          },
+          "speedAriaLabel": "Scroll speed presets",
+          "speedLabel": "Speed",
+          "speedPresets": {
+            "slow": "Slow",
+            "natural": "Natural",
+            "fast": "Fast"
+          },
+          "scrollSpeedLabel": "Scroll speed",
+          "scrollSpeedValue": "{value} px/s",
+          "fontSizeLabel": "Font size",
+          "fontSizeValue": "{value}px",
+          "lineSpacingLabel": "Line spacing",
+          "textWidthLabel": "Width",
+          "textWidthValue": "{value}%",
+          "textAlignLabel": "Alignment",
+          "textAlignCentred": "Centred",
+          "textAlignLeft": "Left aligned",
+          "startCountdownLabel": "Countdown",
+          "countdownNone": "None",
+          "countdownSeconds": "{value} seconds",
+          "mirrorText": "Mirror text",
+          "readingGuide": "Reading guide",
+          "stageAriaLabel": "Teleprompter reading stage",
+          "emptyScriptPlaceholder": "Add a script.",
+          "progressAriaLabel": "Script progress",
+          "progressSummary": "{percent}% · {duration} remaining",
+          "playback": {
+            "pause": "Pause",
+            "resume": "Resume",
+            "cancelCountdown": "Cancel countdown",
+            "playAgain": "Play again",
+            "startIn": "Start in {seconds} seconds",
+            "play": "Play"
+          },
+          "reset": "Reset",
+          "exitFullscreen": "Exit fullscreen",
+          "fullscreen": "Fullscreen",
+          "shortcutsHint": "Space play/pause · R reset · M mirror · F fullscreen · ↑/↓ speed"
+        }
+      }
+    }
+  }
+}
